@@ -4,14 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-game_state
+GameState
 create_game() {
     // this is the concise way to write it
-    return (game_state){.move_counter = 0, .positions = {0}, .states = {HOME}};
+    return (GameState){.move_counter = 0, .positions = {0}};
 }
 
 Color
-whose_turn_is_it(game_state g) {
+whose_turn_is_it(GameState g) {
     return g.move_counter % 4;
 }
 
@@ -30,37 +30,28 @@ getRandomNumber() {
 }
 
 void
-play(game_state g) {
+play(GameState g, Move m) {
     Color curr = whose_turn_is_it(g);
     uint8_t roll = rand() % 5 + 1;
 
     uint8_t *positions = get_positions(g, curr);
-    pawn_states *states = get_states(g, curr);
 
     // what can be played?
-    if (roll == 6) {
-        int move_p = get_selection();
-        if (!move_p) {
-            int release_pawn = get_offset(curr); // this is stupid and I can't decide if I hate
-                                                 // abstraction more than nesting
-            for (int a = 0; a < 4; a++) {
-                if (states[a] == HOME) {
-                    positions[a] = release_pawn;
-                    states[a] = OUTER;
-                    break;
-                }
+    if (m.type == EVICT) {
+        for (int a = 0; a < 4; a++) {
+            if (get_state_from_position(positions[a]) == HOME) {
+                positions[a]++;
+                break;
             }
-
-            // but what happens if there are no pawns at home?
-            // no case to handle a == 4
-            // TODO: handle this case
-            return;
         }
-        // for now there are no transitions out of the OUTER loop so there's no
-        // FINAL or ASCENDED states so no state changes after HOME to OUTER
 
-        positions[move_p] += 6;
+        // we should not be here
+        return;
     }
+    // for now there are no transitions out of the OUTER loop so there's no
+    // FINAL or ASCENDED states so no state changes after HOME to OUTER
+
+    positions[m.pawn] += roll;
 }
 
 int
