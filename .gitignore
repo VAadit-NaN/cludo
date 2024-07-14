@@ -2,3 +2,4 @@ load_board
 test_flattened.png
 board_logic
 makefile
+.vscode/
