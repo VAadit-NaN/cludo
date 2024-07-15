@@ -32,15 +32,13 @@ getRandomNumber() {
 void
 play(GameState g, Move m) {
     Color curr = whose_turn_is_it(g);
-    uint8_t roll = rand() % 5 + 1;
-
     uint8_t *positions = get_positions(g, curr);
 
     // what can be played?
     if (m.type == EVICT) {
         for (int a = 0; a < 4; a++) {
             if (get_state_from_position(positions[a]) == HOME) {
-                positions[a]++;
+                positions[a] = get_offset(curr);
                 break;
             }
         }
@@ -51,7 +49,7 @@ play(GameState g, Move m) {
     // for now there are no transitions out of the OUTER loop so there's no
     // FINAL or ASCENDED states so no state changes after HOME to OUTER
 
-    positions[m.pawn] += roll;
+    positions[m.pawn] += m.roll;
 }
 
 int
